@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Mini Event Scheduler</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 20px;
+        }
+
+        .input-section {
+            flex: 1;
+            min-width: 300px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            margin-right: 20px;
+            margin-bottom: 20px;
+        }
+
+        .display-section {
+            flex: 2;
+            min-width: 300px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .btn-add-front {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-add-end {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        .btn-add-pos {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+        .btn-delete {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-clear {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .events-container {
+            margin-top: 20px;
+        }
+
+        .event-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #4b6cb7;
+            position: relative;
+            transition: transform 0.2s;
+        }
+
+        .event-card.completed {
+            border-left-color: #28a745;
+            opacity: 0.7;
+        }
+
+        .event-card:hover {
+            transform: translateX(5px);
+        }
+
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .event-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #343a40;
+        }
+
+        .event-date {
+            background-color: #e9ecef;
+            padding: 3px 8px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            color: #495057;
+        }
+
+        .event-description {
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+
+        .event-position {
+            font-size: 0.8rem;
+            color: #868e96;
+        }
+
+        .event-status {
+            font-size: 0.8rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .status-upcoming {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-ongoing {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-completed {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #6c757d;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+            color: #adb5bd;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #4b6cb7;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .linked-list-visual {
+            background-color: #343a40;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-family: monospace;
+            overflow-x: auto;
+        }
+
+        .node {
+            display: inline-flex;
+            align-items: center;
+            margin-right: 10px;
+        }
+
+        .node-content {
+            background-color: #495057;
+            padding: 8px 12px;
+            border-radius: 5px;
+        }
+
+        .node-pointer {
+            margin: 0 5px;
+            color: #17a2b8;
+        }
+
+        .null-pointer {
+            color: #dc3545;
+        }
+
+        .time-inputs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .time-inputs input {
+            flex: 1;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .input-section {
+                margin-right: 0;
+            }
+            
+            .time-inputs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Enhanced Mini Event Scheduler</h1>
+            <p class="subtitle">Manage your events with time tracking using a linked list</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="input-section">
+                <h2>Add New Event</h2>
+                <div class="form-group">
+                    <label for="eventTitle">Event Title</label>
+                    <input type="text" id="eventTitle" placeholder="Enter event title">
+                </div>
+                
+                <div class="form-group">
+                    <label for="eventDate">Event Date</label>
+                    <input type="date" id="eventDate">
+                </div>
+                
+                <div class="form-group">
+                    <label for="eventTime">Event Time</label>
+                    <div class="time-inputs">
+                        <input type="time" id="startTime" placeholder="Start Time">
+                        <input type="time" id="endTime" placeholder="End Time">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="eventDescription">Description</label>
+                    <textarea id="eventDescription" placeholder="Enter event description"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="insertPosition">Insert Position (for specific position)</label>
+                    <input type="number" id="insertPosition" min="1" placeholder="Enter position">
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn-add-front" onclick="addEventAtFront()">Add at Front</button>
+                    <button class="btn-add-end" onclick="addEventAtEnd()">Add at End</button>
+                    <button class="btn-add-pos" onclick="addEventAtPosition()">Add at Position</button>
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn-delete" onclick="deleteEvent()">Delete Event</button>
+                    <button class="btn-clear" onclick="clearAllEvents()">Clear All</button>
+                </div>
+            </div>
+            
+            <div class="display-section">
+                <h2>Your Events</h2>
+                <div class="events-container" id="eventsContainer">
+                    <div class="empty-state">
+                        <i>📅</i>
+                        <p>No events scheduled yet. Add your first event!</p>
+                    </div>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalEvents">0</div>
+                        <div class="stat-label">Total Events</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="upcomingEvents">0</div>
+                        <div class="stat-label">Upcoming</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="ongoingEvents">0</div>
+                        <div class="stat-label">Ongoing</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="completedEvents">0</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
+                </div>
+                
+                <div class="linked-list-visual">
+                    <h3>Linked List Visualization</h3>
+                    <div id="linkedListVisual">
+                        <div class="node">
+                            <div class="node-content">HEAD</div>
+                            <div class="node-pointer">→</div>
+                        </div>
+                        <div class="node">
+                            <div class="node-content">NULL</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Node class for linked list
+        class EventNode {
+            constructor(event, next = null) {
+                this.event = event;
+                this.next = next;
+            }
+        }
+
+        // Linked List class
+        class EventLinkedList {
+            constructor() {
+                this.head = null;
+                this.size = 0;
+            }
+
+            // Add event at the front
+            addAtFront(event) {
+                const newNode = new EventNode(event, this.head);
+                this.head = newNode;
+                this.size++;
+                return true;
+            }
+
+            // Add event at the end
+            addAtEnd(event) {
+                const newNode = new EventNode(event);
+                
+                if (!this.head) {
+                    this.head = newNode;
+                } else {
+                    let current = this.head;
+                    while (current.next) {
+                        current = current.next;
+                    }
+                    current.next = newNode;
+                }
+                
+                this.size++;
+                return true;
+            }
+
+            // Add event at specific position
+            addAtPosition(event, position) {
+                if (position < 1 || position > this.size + 1) {
+                    return false;
+                }
+
+                if (position === 1) {
+                    return this.addAtFront(event);
+                }
+
+                const newNode = new EventNode(event);
+                let current = this.head;
+                let previous = null;
+                let count = 1;
+
+                while (count < position) {
+                    previous = current;
+                    current = current.next;
+                    count++;
+                }
+
+                previous.next = newNode;
+                newNode.next = current;
+                this.size++;
+                return true;
+            }
+
+            // Delete event by position
+            deleteAtPosition(position) {
+                if (position < 1 || position > this.size) {
+                    return false;
+                }
+
+                let current = this.head;
+                let previous = null;
+                let count = 1;
+
+                if (position === 1) {
+                    this.head = current.next;
+                } else {
+                    while (count < position) {
+                        previous = current;
+                        current = current.next;
+                        count++;
+                    }
+                    previous.next = current.next;
+                }
+
+                this.size--;
+                return current.event;
+            }
+
+            // Get all events as array
+            getAllEvents() {
+                const events = [];
+                let current = this.head;
+                let position = 1;
+
+                while (current) {
+                    events.push({
+                        ...current.event,
+                        position: position
+                    });
+                    current = current.next;
+                    position++;
+                }
+
+                return events;
+            }
+
+            // Clear all events
+            clear() {
+                this.head = null;
+                this.size = 0;
+            }
+        }
+
+        // Create a new linked list instance
+        const eventList = new EventLinkedList();
+
+        // Function to add sample events for demonstration
+        function addSampleEvents() {
+            const now = new Date();
+            const today = now.toISOString().split('T')[0];
+            
+            // Add a sample event that's already completed
+            const completedTime = new Date(now);
+            completedTime.setHours(now.getHours() - 2);
+            
+            const sampleEvents = [
+                {
+                    title: "Team Meeting",
+                    date: today,
+                    startTime: "09:00",
+                    endTime: "10:00",
+                    description: "Weekly team sync-up to discuss project progress"
+                },
+                {
+                    title: "Product Launch",
+                    date: today,
+                    startTime: "14:00",
+                    endTime: "16:00",
+                    description: "Launch event for our new product line"
+                },
+                {
+                    title: "Conference Talk",
+                    date: today,
+                    startTime: "18:00",
+                    endTime: "20:00",
+                    description: "Speaking at the annual tech conference"
+                }
+            ];
+
+            sampleEvents.forEach(event => {
+                eventList.addAtEnd(event);
+            });
+
+            updateDisplay();
+        }
+
+        // Add event at front
+        function addEventAtFront() {
+            const event = getEventFromForm();
+            if (!event) return;
+
+            if (eventList.addAtFront(event)) {
+                updateDisplay();
+                clearForm();
+            } else {
+                alert("Failed to add event at front");
+            }
+        }
+
+        // Add event at end
+        function addEventAtEnd() {
+            const event = getEventFromForm();
+            if (!event) return;
+
+            if (eventList.addAtEnd(event)) {
+                updateDisplay();
+                clearForm();
+            } else {
+                alert("Failed to add event at end");
+            }
+        }
+
+        // Add event at specific position
+        function addEventAtPosition() {
+            const event = getEventFromForm();
+            if (!event) return;
+
+            const position = parseInt(document.getElementById('insertPosition').value);
+            if (isNaN(position) || position < 1) {
+                alert("Please enter a valid position (starting from 1)");
+                return;
+            }
+
+            if (eventList.addAtPosition(event, position)) {
+                updateDisplay();
+                clearForm();
+            } else {
+                alert("Invalid position. Please enter a position between 1 and " + (eventList.size + 1));
+            }
+        }
+
+        // Delete event
+        function deleteEvent() {
+            const position = parseInt(document.getElementById('insertPosition').value);
+            if (isNaN(position) || position < 1) {
+                alert("Please enter a valid position to delete");
+                return;
+            }
+
+            const deletedEvent = eventList.deleteAtPosition(position);
+            if (deletedEvent) {
+                updateDisplay();
+                document.getElementById('insertPosition').value = '';
+                alert(`Deleted event: ${deletedEvent.title}`);
+            } else {
+                alert("Invalid position. Please enter a position between 1 and " + eventList.size);
+            }
+        }
+
+        // Clear all events
+        function clearAllEvents() {
+            if (eventList.size === 0) {
+                alert("No events to clear");
+                return;
+            }
+
+            if (confirm("Are you sure you want to delete all events?")) {
+                eventList.clear();
+                updateDisplay();
+            }
+        }
+
+        // Get event data from form
+        function getEventFromForm() {
+            const title = document.getElementById('eventTitle').value.trim();
+            const date = document.getElementById('eventDate').value;
+            const startTime = document.getElementById('startTime').value;
+            const endTime = document.getElementById('endTime').value;
+            const description = document.getElementById('eventDescription').value.trim();
+
+            if (!title) {
+                alert("Please enter an event title");
+                return null;
+            }
+
+            if (!date) {
+                alert("Please select an event date");
+                return null;
+            }
+
+            if (!startTime || !endTime) {
+                alert("Please enter both start and end time");
+                return null;
+            }
+
+            if (startTime >= endTime) {
+                alert("End time must be after start time");
+                return null;
+            }
+
+            return {
+                title,
+                date,
+                startTime,
+                endTime,
+                description: description || "No description provided"
+            };
+        }
+
+        // Clear form inputs
+        function clearForm() {
+            document.getElementById('eventTitle').value = '';
+            document.getElementById('eventDate').value = '';
+            document.getElementById('startTime').value = '';
+            document.getElementById('endTime').value = '';
+            document.getElementById('eventDescription').value = '';
+            document.getElementById('insertPosition').value = '';
+        }
+
+        // Get event status based on current time
+        function getEventStatus(event) {
+            const now = new Date();
+            const eventDate = new Date(event.date);
+            
+            // Create Date objects for start and end times
+            const startDateTime = new Date(event.date + 'T' + event.startTime);
+            const endDateTime = new Date(event.date + 'T' + event.endTime);
+            
+            if (now > endDateTime) {
+                return 'completed';
+            } else if (now >= startDateTime && now <= endDateTime) {
+                return 'ongoing';
+            } else {
+                return 'upcoming';
+            }
+        }
+
+        // Update events display
+        function updateDisplay() {
+            const eventsContainer = document.getElementById('eventsContainer');
+            const events = eventList.getAllEvents();
+            
+            // Update stats
+            let upcomingCount = 0;
+            let ongoingCount = 0;
+            let completedCount = 0;
+            
+            events.forEach(event => {
+                const status = getEventStatus(event);
+                if (status === 'upcoming') upcomingCount++;
+                else if (status === 'ongoing') ongoingCount++;
+                else if (status === 'completed') completedCount++;
+            });
+            
+            document.getElementById('totalEvents').textContent = events.length;
+            document.getElementById('upcomingEvents').textContent = upcomingCount;
+            document.getElementById('ongoingEvents').textContent = ongoingCount;
+            document.getElementById('completedEvents').textContent = completedCount;
+
+            // Clear container
+            eventsContainer.innerHTML = '';
+
+            if (events.length === 0) {
+                eventsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i>📅</i>
+                        <p>No events scheduled yet. Add your first event!</p>
+                    </div>
+                `;
+            } else {
+                events.forEach(event => {
+                    const eventDate = new Date(event.date);
+                    const formattedDate = eventDate.toLocaleDateString('en-US', {
+                        weekday: 'short',
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    });
+                    
+                    const status = getEventStatus(event);
+                    const statusClass = `status-${status}`;
+                    
+                    const eventCard = document.createElement('div');
+                    eventCard.className = `event-card ${status === 'completed' ? 'completed' : ''}`;
+                    eventCard.innerHTML = `
+                        <div class="event-header">
+                            <div class="event-title">${event.title}</div>
+                            <div class="event-date">${formattedDate} | ${event.startTime} - ${event.endTime}</div>
+                        </div>
+                        <div class="event-description">${event.description}</div>
+                        <div class="event-position">Position: ${event.position}</div>
+                        <div class="event-status ${statusClass}">${status.charAt(0).toUpperCase() + status.slice(1)}</div>
+                    `;
+                    
+                    eventsContainer.appendChild(eventCard);
+                });
+            }
+
+            updateLinkedListVisualization();
+            
+            // Auto-delete completed events after a delay
+            autoDeleteCompletedEvents();
+        }
+
+        // Auto-delete completed events
+        function autoDeleteCompletedEvents() {
+            const events = eventList.getAllEvents();
+            let deletedCount = 0;
+            
+            // We'll delete from the end to avoid position shifting issues
+            for (let i = events.length; i >= 1; i--) {
+                const event = events[i-1];
+                if (getEventStatus(event) === 'completed') {
+                    eventList.deleteAtPosition(i);
+                    deletedCount++;
+                }
+            }
+            
+            if (deletedCount > 0) {
+                updateDisplay();
+                // Show a notification about deleted events
+                setTimeout(() => {
+                    alert(`${deletedCount} completed event(s) have been automatically deleted`);
+                }, 100);
+            }
+        }
+
+        // Update linked list visualization
+        function updateLinkedListVisualization() {
+            const visualContainer = document.getElementById('linkedListVisual');
+            visualContainer.innerHTML = '';
+            
+            let current = eventList.head;
+            let position = 1;
+            
+            // Add HEAD pointer
+            const headNode = document.createElement('div');
+            headNode.className = 'node';
+            headNode.innerHTML = `
+                <div class="node-content">HEAD</div>
+                <div class="node-pointer">→</div>
+            `;
+            visualContainer.appendChild(headNode);
+            
+            // Add nodes
+            while (current) {
+                const node = document.createElement('div');
+                node.className = 'node';
+                
+                // Shorten title for display
+                const shortTitle = current.event.title.length > 15 
+                    ? current.event.title.substring(0, 15) + '...' 
+                    : current.event.title;
+                
+                node.innerHTML = `
+                    <div class="node-content">${shortTitle}</div>
+                    <div class="node-pointer">→</div>
+                `;
+                
+                visualContainer.appendChild(node);
+                current = current.next;
+                position++;
+            }
+            
+            // Add NULL pointer
+            const nullNode = document.createElement('div');
+            nullNode.className = 'node';
+            nullNode.innerHTML = `
+                <div class="node-content null-pointer">NULL</div>
+            `;
+            visualContainer.appendChild(nullNode);
+        }
+
+        // Initialize the application
+        window.onload = function() {
+            // Add sample events for demonstration
+            addSampleEvents();
+            
+            // Set minimum date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('eventDate').min = today;
+            
+            // Set default times
+            const now = new Date();
+            const nextHour = new Date(now.getTime() + 60 * 60 * 1000);
+            
+            document.getElementById('startTime').value = 
+                `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            document.getElementById('endTime').value = 
+                `${String(nextHour.getHours()).padStart(2, '0')}:${String(nextHour.getMinutes()).padStart(2, '0')}`;
+            
+            // Set up auto-refresh to check for completed events
+            setInterval(updateDisplay, 60000); // Check every minute
+        };
+    </script>
+</body>
+</html>
